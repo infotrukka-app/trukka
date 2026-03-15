@@ -637,6 +637,40 @@ body.light{background:#E8EDF5;}
   border-radius:12px;padding:10px 18px;display:inline-block;margin:10px 0;}
 .ref-stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;text-align:center;}
 
+
+/* ─── AI FEATURES ─── */
+@keyframes aiPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.97)}}
+@keyframes aiThink{0%{content:'🤖 Thinking.'}33%{content:'🤖 Thinking..'}66%{content:'🤖 Thinking...'}}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;
+  font-size:10px;font-weight:800;font-family:'Syne',sans-serif;
+  background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(167,139,250,.1));
+  border:1px solid rgba(167,139,250,.35);color:#C4B5FD;}
+.ai-thinking{font-size:13px;color:var(--purple);font-weight:600;animation:aiPulse 1.2s ease infinite;}
+.ai-box{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(167,139,250,.04));
+  border:1.5px solid rgba(167,139,250,.25);border-radius:16px;padding:14px 16px;margin-bottom:14px;}
+.ai-box-title{font-size:11px;font-weight:800;color:#C4B5FD;text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ai-insight{font-size:13px;color:var(--text);line-height:1.7;}
+.ai-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(124,58,237,.12);
+  border:1px solid rgba(167,139,250,.25);border-radius:99px;padding:3px 10px;
+  font-size:11px;font-weight:700;color:#C4B5FD;cursor:pointer;transition:all .2s;margin:3px 2px;}
+.ai-chip:active{transform:scale(.95);background:rgba(124,58,237,.22);}
+.ai-fab{position:absolute;bottom:160px;right:16px;z-index:29;width:48px;height:48px;
+  border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A78BFA);
+  display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;
+  box-shadow:0 6px 24px rgba(124,58,237,.45);border:none;transition:all .2s;}
+.ai-fab:active{transform:scale(.9);}
+.fraud-flag{background:rgba(255,69,96,.08);border:1.5px solid rgba(255,69,96,.25);
+  border-radius:12px;padding:10px 14px;margin-top:8px;}
+.fraud-safe{background:rgba(0,196,140,.08);border:1.5px solid rgba(0,196,140,.2);
+  border-radius:12px;padding:10px 14px;margin-top:8px;}
+.ai-market-card{background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(56,189,248,.05));
+  border:1.5px solid rgba(124,58,237,.2);border-radius:20px;padding:16px;margin:0 16px 16px;}
+.ai-seller-panel{position:absolute;inset:0;background:var(--bg);z-index:55;
+  display:flex;flex-direction:column;transform:translateY(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.ai-seller-panel.open{transform:translateY(0);}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -1025,10 +1059,68 @@ body.light{background:#E8EDF5;}
     <div class="nav" id="nav-verify"></div>
   </div>
 
+  <!-- AI FAB -->
+  <button class="ai-fab" id="ai-fab" onclick="openAiPanel()" title="AI Assistant">🤖</button>
+
   <!-- CART FAB -->
   <button class="cart-fab" id="cart-fab" onclick="openCart()">
     🛒<div class="cart-count" id="cart-count">0</div>
   </button>
+
+
+  <!-- ═══ AI SELLER ASSISTANT PANEL ═══ -->
+  <div class="ai-seller-panel" id="ai-seller-panel">
+    <div style="padding:52px 20px 14px;background:var(--bg2);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:12px;flex-shrink:0;">
+      <div onclick="closeAiPanel()" style="font-size:22px;cursor:pointer;">←</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:900;font-family:'Syne',sans-serif;
+          background:linear-gradient(90deg,#A78BFA,#60A5FA);-webkit-background-clip:text;
+          -webkit-text-fill-color:transparent;">🤖 AI Seller Assistant</div>
+        <div style="font-size:11px;color:var(--muted);">Powered by Claude AI</div>
+      </div>
+      <span class="ai-badge">AI</span>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px;scrollbar-width:none;" id="ai-panel-content">
+      <div style="text-align:center;padding:30px 20px;">
+        <div style="font-size:48px;margin-bottom:12px;">🤖</div>
+        <div style="font-size:17px;font-weight:900;font-family:'Syne',sans-serif;margin-bottom:6px;">
+          Your AI Trading Assistant
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">
+          I can help you write listings, set the right price, predict demand, and grow your sales across West Africa.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="ai-chip" style="justify-content:flex-start;padding:10px 14px;border-radius:14px;" 
+            onclick="askAiSeller('How should I price my Palm Oil for export to Ghana?')">
+            💰 Help me price my goods
+          </div>
+          <div class="ai-chip" style="justify-content:flex-start;padding:10px 14px;border-radius:14px;"
+            onclick="askAiSeller('Write a compelling auction listing for premium dried cassava chips, 50 metric tonnes')">
+            ✍️ Write my product listing
+          </div>
+          <div class="ai-chip" style="justify-content:flex-start;padding:10px 14px;border-radius:14px;"
+            onclick="askAiSeller('Which West African countries have the highest demand for agricultural goods right now?')">
+            🌍 Best markets for my goods
+          </div>
+          <div class="ai-chip" style="justify-content:flex-start;padding:10px 14px;border-radius:14px;"
+            onclick="askAiSeller('What documents do I need to export goods from Nigeria to Senegal?')">
+            📋 Export requirements
+          </div>
+          <div class="ai-chip" style="justify-content:flex-start;padding:10px 14px;border-radius:14px;"
+            onclick="askAiSeller('How can I grow my sales on Trukka marketplace?')">
+            📈 Grow my sales
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:12px 16px 28px;border-top:1px solid var(--border);background:var(--bg2);display:flex;gap:10px;">
+      <input class="chat-inp" id="ai-seller-inp" placeholder="Ask AI anything about trading…" 
+        onkeydown="if(event.key==='Enter') askAiSellerFromInput()"/>
+      <button class="chat-send" onclick="askAiSellerFromInput()" 
+        style="background:linear-gradient(135deg,#7C3AED,#A78BFA);">➤</button>
+    </div>
+  </div>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
@@ -1455,7 +1547,7 @@ function go(sc){
   if(sc==='profile') renderProfile();
   if(sc==='market') renderAuctions();
   if(sc==='wallet') renderWallet();
-  if(sc==='dash') renderDash();
+  if(sc==='dash') renderDashAI();
   if(sc==='watchlist') renderWatchlist();
   if(sc==='referral') renderReferral();
   if(sc==='verify') renderVerify();
@@ -1486,7 +1578,7 @@ function goBack(){
   if(prev==='profile') renderProfile();
   if(prev==='market') renderAuctions();
   if(prev==='wallet') renderWallet();
-  if(prev==='dash') renderDash();
+  if(prev==='dash') renderDashAI();
   if(prev==='watchlist') renderWatchlist();
   if(prev==='referral') renderReferral();
   if(prev==='verify') renderVerify();
@@ -1569,9 +1661,9 @@ function renderAuctions(){
 // ══════════════════════════════════════════
 // BID MODAL
 // ══════════════════════════════════════════
-function openBid(id){
+function openBidCore(id){
   S.showBid=id;
-  const a=AUCTIONS.find(x=>x.id===id); if(!a) return;
+  const a=(REAL_AUCTIONS.length>0?REAL_AUCTIONS:AUCTIONS).find(x=>x.id===id); if(!a) return;
   const {str}=getTimeLeft(id);
   const fmt=n=>'₦'+n.toLocaleString();
   const myBid=S.bidHistory[id]||0;
@@ -1620,7 +1712,7 @@ function updateBidBtn(){
   btn.disabled=val<minNext;
   btn.textContent=val>=minNext?`${t('bidSubmit')} ₦${val.toLocaleString()}`:`${t('bidMin')} ₦${minNext.toLocaleString()}`;
 }
-function submitBid(id){
+function _submitBidOriginal(id){
   const inp=document.getElementById('bid-inp'); const val=parseInt(inp?.value)||0;
   S.bidHistory[id]=val;
   // Try real bid first, fallback to demo
@@ -1800,7 +1892,7 @@ function processWalletAction(type){
 // ══════════════════════════════════════════
 // SELLER DASHBOARD
 // ══════════════════════════════════════════
-function renderDash(){
+function renderDashCore(){
   const el=document.getElementById('dash-content'); if(!el) return;
   const maxVal=Math.max(...BAR_DATA.map(d=>d.val));
   const barColors=['#FFB800','#FF8C00','#FFB800','#FF6B00','#FFB800','#FF8C00','#FFB800'];
@@ -3431,6 +3523,404 @@ async function markAllReadReal(){
   renderNotifList();
 }
 
+
+// ══════════════════════════════════════════
+// AI ENGINE — CLAUDE API
+// ══════════════════════════════════════════
+const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
+
+async function askClaude(systemPrompt, userMessage, maxTokens=500){
+  try {
+    const res = await fetch(CLAUDE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: maxTokens,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||'API error'); }
+    const data = await res.json();
+    return data.content?.[0]?.text || 'No response';
+  } catch(e) {
+    console.error('Claude API error:', e);
+    throw e;
+  }
+}
+
+const TRUKKA_SYSTEM = `You are Trukka AI, the world's first AI trading assistant for West African wholesale marketplace. 
+You help Nigerian sellers and West African buyers trade smarter. 
+Be concise, practical, and use Nigerian/West African context. 
+Always respond in the same language as the user (English or French).
+Keep responses under 200 words. Use emojis sparingly but effectively.`;
+
+// ══════════════════════════════════════════
+// FEATURE 1: AI BID ASSISTANT
+// ══════════════════════════════════════════
+async function getAiBidSuggestion(auction){
+  const prompt = `Analyze this wholesale auction on Trukka marketplace and suggest the optimal bid:
+Product: ${auction.title}
+Category: ${auction.cat}
+Current bid: ₦${auction.price?.toLocaleString()}
+Minimum bid: ₦${auction.minBid?.toLocaleString()}
+Lot size: ${auction.lotSize}
+Active bids: ${auction.bids}
+Buyer countries: ${auction.buyers?.join(', ')}
+Time remaining: ${getTimeLeft(auction.id)?.str}
+
+Provide: 1) Recommended bid amount 2) Why this price 3) Market insight. Be brief and specific.`;
+
+  return await askClaude(TRUKKA_SYSTEM, prompt, 300);
+}
+
+function showAiBidInsight(auctionId){
+  const a = (REAL_AUCTIONS.length>0?REAL_AUCTIONS:AUCTIONS).find(x=>x.id===auctionId);
+  if(!a) return;
+  const box = document.getElementById('ai-bid-box-'+auctionId);
+  if(!box) return;
+  box.innerHTML = '<div class="ai-thinking">🤖 Analyzing market data...</div>';
+  box.style.display = 'block';
+  getAiBidSuggestion(a).then(text=>{
+    box.innerHTML = `<div class="ai-box-title">🤖 AI BID RECOMMENDATION</div>
+      <div class="ai-insight">${text.replace(/\n/g,'<br>')}</div>`;
+  }).catch(()=>{
+    box.innerHTML = '<div class="ai-insight" style="color:var(--muted);">AI suggestion unavailable. Check your connection.</div>';
+  });
+}
+
+// ══════════════════════════════════════════
+// FEATURE 2: AI TRADE CHAT
+// ══════════════════════════════════════════
+let aiChatHistory = [];
+
+async function sendAiChat(userMsg, auctionId){
+  const auction = (REAL_AUCTIONS.length>0?REAL_AUCTIONS:AUCTIONS).find(x=>x.id===auctionId);
+  const context = auction ? `
+The buyer is asking about this product:
+- Product: ${auction.title}
+- Seller: ${auction.seller} (${auction.city})
+- Current bid: ₦${auction.price?.toLocaleString()}
+- Lot size: ${auction.lotSize}
+- Verified seller: ${auction.verified}` : '';
+
+  const system = TRUKKA_SYSTEM + context + `
+You are assisting a buyer in a trade chat. Answer questions about the product, pricing, shipping, and quality. 
+If you don't know specific details, suggest they ask the seller directly.`;
+
+  aiChatHistory.push({role:'user', content:userMsg});
+  if(aiChatHistory.length > 10) aiChatHistory = aiChatHistory.slice(-10);
+
+  try {
+    const res = await fetch(CLAUDE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 300,
+        system,
+        messages: aiChatHistory
+      })
+    });
+    if(!res.ok) throw new Error('API error');
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'How can I help you with this product?';
+    aiChatHistory.push({role:'assistant', content:reply});
+    return reply;
+  } catch(e){
+    return S.lang==='fr'?'Je suis désolé, service IA temporairement indisponible.':'Sorry, AI service temporarily unavailable.';
+  }
+}
+
+// ══════════════════════════════════════════
+// FEATURE 3: AI MARKET INTELLIGENCE
+// ══════════════════════════════════════════
+async function getAiMarketIntelligence(){
+  const el = document.getElementById('ai-market-intel');
+  if(!el) return;
+  el.innerHTML = '<div class="ai-thinking" style="text-align:center;padding:16px;">🤖 Analyzing West African markets...</div>';
+
+  const auctions = REAL_AUCTIONS.length>0 ? REAL_AUCTIONS : AUCTIONS;
+  const categories = [...new Set(auctions.map(a=>a.cat))];
+  const totalBids = auctions.reduce((s,a)=>s+(a.bids||0),0);
+
+  const prompt = `Analyze the current wholesale market on Trukka West Africa marketplace:
+Active auctions: ${auctions.length}
+Categories: ${categories.join(', ')}
+Total bids: ${totalBids}
+Top auction: ${auctions.sort((a,b)=>(b.bids||0)-(a.bids||0))[0]?.title}
+
+Provide a brief market intelligence report with:
+1. 🔥 Hottest category right now
+2. 💰 Best opportunity for buyers
+3. 📈 Market trend this week
+4. 🌍 Most active buyer country
+Keep it under 150 words. Be specific and actionable.`;
+
+  try {
+    const text = await askClaude(TRUKKA_SYSTEM, prompt, 300);
+    el.innerHTML = `<div class="ai-box-title">📊 AI MARKET INTELLIGENCE</div>
+      <div class="ai-insight">${text.replace(/\n/g,'<br>')}</div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);">Updated just now · Powered by Claude AI</div>`;
+  } catch(e){
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:10px;">Market analysis unavailable</div>';
+  }
+}
+
+// ══════════════════════════════════════════
+// FEATURE 4: AI FRAUD DETECTION
+// ══════════════════════════════════════════
+async function checkBidFraud(auctionId, bidAmount, currentPrice, bidCount){
+  const prompt = `Analyze this bid for potential fraud on a West African wholesale marketplace:
+Auction ID: ${auctionId}
+Bid amount: ₦${bidAmount?.toLocaleString()}
+Current price: ₦${currentPrice?.toLocaleString()}  
+Bid increase: ${currentPrice>0?Math.round((bidAmount-currentPrice)/currentPrice*100):0}%
+Total bids so far: ${bidCount}
+User account age: ${CURRENT_PROFILE?.created_at ? Math.round((Date.now()-new Date(CURRENT_PROFILE.created_at))/86400000) : 0} days
+
+Reply with ONLY a JSON object: {"risk":"low"|"medium"|"high","reason":"one sentence","allow":true|false}`;
+
+  try {
+    const text = await askClaude(
+      'You are a fraud detection AI for a wholesale marketplace. Analyze bids for suspicious patterns. Always respond with valid JSON only.',
+      prompt, 100
+    );
+    const clean = text.replace(/```json|```/g,'').trim();
+    return JSON.parse(clean);
+  } catch(e){
+    return {risk:'low', reason:'Analysis unavailable', allow:true};
+  }
+}
+
+function showFraudResult(result, container){
+  if(!container) return;
+  const isHigh = result.risk==='high';
+  const isMed = result.risk==='medium';
+  container.innerHTML = `<div class="${isHigh?'fraud-flag':isMed?'fraud-flag':'fraud-safe'}">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <span style="font-size:16px;">${isHigh?'🚨':isMed?'⚠️':'✅'}</span>
+      <span style="font-size:13px;font-weight:800;color:${isHigh?'var(--red)':isMed?'var(--amber)':'var(--green)'};">
+        ${isHigh?'High Risk':''}${isMed?'Review Needed':''}${!isHigh&&!isMed?'Bid Looks Safe':''}
+      </span>
+      <span style="font-size:10px;font-weight:700;color:var(--muted);margin-left:auto;">AI Fraud Check</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);">${result.reason}</div>
+  </div>`;
+  container.style.display = 'block';
+}
+
+// ══════════════════════════════════════════
+// FEATURE 5: AI SELLER ASSISTANT PANEL
+// ══════════════════════════════════════════
+let aiSellerHistory = [];
+
+function openAiPanel(){
+  document.getElementById('ai-seller-panel').classList.add('open');
+}
+function closeAiPanel(){
+  document.getElementById('ai-seller-panel').classList.remove('open');
+}
+
+async function askAiSeller(question){
+  const inp = document.getElementById('ai-seller-inp');
+  const content = document.getElementById('ai-panel-content');
+  if(!content) return;
+
+  // Add user message
+  const userDiv = document.createElement('div');
+  userDiv.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+    <div style="background:linear-gradient(135deg,var(--amber),var(--orange));color:#180A00;
+      padding:10px 14px;border-radius:18px 18px 4px 18px;font-size:13px;font-weight:600;max-width:80%;">
+      ${question}
+    </div>
+  </div>`;
+  content.appendChild(userDiv);
+  content.scrollTop = content.scrollHeight;
+
+  // Thinking indicator
+  const thinkDiv = document.createElement('div');
+  thinkDiv.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A78BFA);
+      display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🤖</div>
+    <div class="ai-thinking">Thinking...</div>
+  </div>`;
+  content.appendChild(thinkDiv);
+  content.scrollTop = content.scrollHeight;
+
+  aiSellerHistory.push({role:'user', content:question});
+  if(aiSellerHistory.length>10) aiSellerHistory=aiSellerHistory.slice(-10);
+
+  const sellerSystem = TRUKKA_SYSTEM + `
+You are helping a seller named ${CURRENT_PROFILE?.name||'Trader'} on Trukka marketplace.
+Their role: ${CURRENT_PROFILE?.role||'seller'}
+Location: ${CURRENT_PROFILE?.city||'Nigeria'}
+Give practical, actionable advice specific to West African wholesale trade.`;
+
+  try {
+    const res = await fetch(CLAUDE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model:CLAUDE_MODEL, max_tokens:500, system:sellerSystem, messages:aiSellerHistory })
+    });
+    if(!res.ok) throw new Error('API error');
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'How can I help you trade smarter?';
+    aiSellerHistory.push({role:'assistant', content:reply});
+    thinkDiv.innerHTML = `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A78BFA);
+        display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🤖</div>
+      <div class="ai-box" style="margin:0;flex:1;">
+        <div class="ai-insight">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>
+      </div>
+    </div>`;
+  } catch(e){
+    thinkDiv.innerHTML = '<div style="color:var(--red);font-size:13px;margin-bottom:12px;">❌ AI unavailable. Check connection.</div>';
+  }
+  content.scrollTop = content.scrollHeight;
+  if(inp) inp.value='';
+}
+
+function askAiSellerFromInput(){
+  const inp = document.getElementById('ai-seller-inp');
+  const q = inp?.value?.trim();
+  if(!q) return;
+  inp.value = '';
+  askAiSeller(q);
+}
+
+// ══════════════════════════════════════════
+// PATCH: Inject AI into Bid Modal
+// ══════════════════════════════════════════
+function injectAiBidBox(auctionId){
+  // Add AI box to bid overlay after it's created
+  setTimeout(()=>{
+    const sheet = document.querySelector('#bid-overlay .sheet');
+    if(!sheet) return;
+    // Add AI suggest button after the bid input
+    const bidInp = document.getElementById('bid-inp-wrap');
+    if(bidInp && !document.getElementById('ai-bid-box-'+auctionId)){
+      const aiDiv = document.createElement('div');
+      aiDiv.innerHTML = `
+        <div style="margin-bottom:12px;">
+          <div class="ai-chip" onclick="showAiBidInsight('${auctionId}')" style="width:100%;justify-content:center;padding:9px;">
+            🤖 Get AI Bid Recommendation
+          </div>
+          <div class="ai-box" id="ai-bid-box-${auctionId}" style="display:none;margin-top:8px;margin-bottom:0;"></div>
+        </div>`;
+      bidInp.parentNode.insertBefore(aiDiv, bidInp);
+    }
+  }, 100);
+}
+
+// ══════════════════════════════════════════
+// PATCH: Inject AI into Chat
+// ══════════════════════════════════════════
+async function sendChat(){
+  const inp = document.getElementById('chat-inp');
+  if(!inp||!inp.value.trim()) return;
+  const text = inp.value.trim();
+  inp.value = '';
+  const now = new Date();
+  const time = now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  if(!S.chatMsgs[S.chatSeller]) S.chatMsgs[S.chatSeller]=[];
+  S.chatMsgs[S.chatSeller].push({from:'me',text,time});
+  renderChatMsgs();
+
+  // Use AI for response instead of random replies
+  const msgEl = document.getElementById('chat-messages');
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'msg them';
+  typingDiv.innerHTML = '<div class="msg-bubble"><span class="ai-thinking">🤖 AI is typing...</span></div>';
+  if(msgEl){ msgEl.appendChild(typingDiv); msgEl.scrollTop=msgEl.scrollHeight; }
+
+  try {
+    const aiReply = await sendAiChat(text, S.chatSeller);
+    S.chatMsgs[S.chatSeller].push({from:'them', text:aiReply, time});
+    renderChatMsgs();
+  } catch(e){
+    const replies = t('autoReplies');
+    S.chatMsgs[S.chatSeller].push({from:'them', text:replies[Math.floor(Math.random()*replies.length)], time});
+    renderChatMsgs();
+  }
+}
+
+// ══════════════════════════════════════════
+// PATCH: Inject AI into Bid Submission (fraud check)
+// ══════════════════════════════════════════
+// AI submitBid is the main version
+async function submitBid(id){
+  const inp = document.getElementById('bid-inp');
+  const val = parseFloat(inp?.value);
+  const a = (REAL_AUCTIONS.length>0?REAL_AUCTIONS:AUCTIONS).find(x=>x.id===id);
+  if(!a||!val) return;
+
+  // Show fraud checking
+  const fraudBox = document.createElement('div');
+  fraudBox.id = 'fraud-check-box';
+  fraudBox.innerHTML = '<div class="ai-thinking" style="text-align:center;padding:8px;">🛡️ AI security check...</div>';
+  const sheet = document.querySelector('#bid-overlay .sheet');
+  if(sheet) sheet.appendChild(fraudBox);
+
+  const fraudResult = await checkBidFraud(id, val, a.price, a.bids);
+  
+  if(fraudResult.risk === 'high' && !fraudResult.allow){
+    fraudBox.innerHTML = `<div class="fraud-flag">
+      <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:4px;">🚨 Bid Blocked by AI</div>
+      <div style="font-size:12px;color:var(--muted);">${fraudResult.reason}</div>
+    </div>`;
+    return;
+  }
+
+  showFraudResult(fraudResult, fraudBox);
+  
+  // Proceed with bid after 1 second
+  setTimeout(()=>{
+    S.bidHistory[id] = val;
+    if(CURRENT_USER){
+      submitRealBid(id, val).then(ok=>{
+        if(ok){ closeBid(); showToast(t('bidPlaced')); confetti(); renderAuctions(); loadWallet(); }
+      });
+    } else {
+      S.walletBal -= Math.round(val*0.1);
+      closeBid(); showToast(t('bidPlaced')); confetti(); renderAuctions();
+    }
+  }, fraudResult.risk==='high'?0:1200);
+}
+
+// ══════════════════════════════════════════
+// PATCH: Add AI Market Intelligence to Dashboard
+// ══════════════════════════════════════════
+function renderDashAI(){
+  renderDashCore();
+  // Inject AI market intelligence card into dashboard
+  const el = document.getElementById('dash-content');
+  if(!el) return;
+  const aiCard = document.createElement('div');
+  aiCard.className = 'ai-market-card';
+  aiCard.id = 'ai-market-intel';
+  aiCard.innerHTML = `<div class="ai-box-title">📊 AI MARKET INTELLIGENCE</div>
+    <div style="text-align:center;padding:10px;">
+      <div class="ai-chip" onclick="getAiMarketIntelligence()" style="padding:10px 20px;">
+        🤖 Analyze Market Now
+      </div>
+    </div>`;
+  // Insert after the dash header card
+  const headerCard = el.querySelector('.dash-header-card');
+  if(headerCard) headerCard.after(aiCard);
+  else el.prepend(aiCard);
+}
+
+// ══════════════════════════════════════════
+// PATCH: Inject AI into openBid
+// ══════════════════════════════════════════
+function openBid(id){
+  openBidCore(id);
+  injectAiBidBox(id);
+}
+
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
@@ -3440,7 +3930,7 @@ renderNavs();
 setGreeting();
 renderAuctions();
 renderWallet();
-renderDash();
+renderDashAI();
 renderProfile();
 renderTrack();
 renderBook();
