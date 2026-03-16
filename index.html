@@ -3514,15 +3514,15 @@ async function markAllReadReal(){
 // ══════════════════════════════════════════
 // AI ENGINE — CLAUDE API
 // ══════════════════════════════════════════
-const _k=['sk-ant-api03-Bs_bbFm','YCDIortGUHHpAv1Z4Thl','UBqFVHv9vS5kC1HGHvt6','RS199cVMe_nK238LrEQV9Dpxc5_98ZuBqlC0ROg-lrWQwgAA'].join('');
+// API key secured in Netlify function
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
-const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
+// Claude API proxied through Netlify function
 
 async function askClaude(systemPrompt, userMessage, maxTokens=500){
   try {
-    const res = await fetch(CLAUDE_API, {
+    const res = await fetch('/.netlify/functions/ai', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': _k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: maxTokens,
@@ -3602,9 +3602,9 @@ If you don't know specific details, suggest they ask the seller directly.`;
   if(aiChatHistory.length > 10) aiChatHistory = aiChatHistory.slice(-10);
 
   try {
-    const res = await fetch(CLAUDE_API, {
+    const res = await fetch('/.netlify/functions/ai', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': _k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: 300,
@@ -3748,9 +3748,9 @@ Location: ${CURRENT_PROFILE?.city||'Nigeria'}
 Give practical, actionable advice specific to West African wholesale trade.`;
 
   try {
-    const res = await fetch(CLAUDE_API, {
+    const res = await fetch('/.netlify/functions/ai', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': _k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model:CLAUDE_MODEL, max_tokens:500, system:sellerSystem, messages:aiSellerHistory })
     });
     if(!res.ok) throw new Error('API error');
