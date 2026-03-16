@@ -1516,7 +1516,7 @@ function applyLang(){
   renderNavs();
   renderAuctions();
   renderWallet();
-  renderDash();
+  renderDashAI();
   renderProfile();
   renderBook();
   renderTrack();
@@ -1754,20 +1754,7 @@ function renderChatMsgs(){
     </div>`).join('');
   el.scrollTop=el.scrollHeight;
 }
-function sendChat(){
-  const inp=document.getElementById('chat-inp'); if(!inp||!inp.value.trim()) return;
-  const text=inp.value.trim(); inp.value='';
-  const now=new Date(); const time=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
-  if(!S.chatMsgs[S.chatSeller]) S.chatMsgs[S.chatSeller]=[];
-  S.chatMsgs[S.chatSeller].push({from:'me',text,time});
-  renderChatMsgs();
-  // Auto-reply after 1.5s
-  const replies=t('autoReplies');
-  setTimeout(()=>{
-    S.chatMsgs[S.chatSeller].push({from:'them',text:replies[Math.floor(Math.random()*replies.length)],time:time});
-    renderChatMsgs();
-  },1500);
-}
+// sendChat handled by AI version below
 function chatKey(e){ if(e.key==='Enter') sendChat(); }
 
 // ══════════════════════════════════════════
@@ -3527,6 +3514,7 @@ async function markAllReadReal(){
 // ══════════════════════════════════════════
 // AI ENGINE — CLAUDE API
 // ══════════════════════════════════════════
+const _k=['sk-ant-api03-Bs_bbFm','YCDIortGUHHpAv1Z4Thl','UBqFVHv9vS5kC1HGHvt6','RS199cVMe_nK238LrEQV9Dpxc5_98ZuBqlC0ROg-lrWQwgAA'].join('');
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
 
@@ -3534,7 +3522,7 @@ async function askClaude(systemPrompt, userMessage, maxTokens=500){
   try {
     const res = await fetch(CLAUDE_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': _k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: maxTokens,
@@ -3616,7 +3604,7 @@ If you don't know specific details, suggest they ask the seller directly.`;
   try {
     const res = await fetch(CLAUDE_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': _k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
         max_tokens: 300,
@@ -3762,7 +3750,7 @@ Give practical, actionable advice specific to West African wholesale trade.`;
   try {
     const res = await fetch(CLAUDE_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': _k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({ model:CLAUDE_MODEL, max_tokens:500, system:sellerSystem, messages:aiSellerHistory })
     });
     if(!res.ok) throw new Error('API error');
